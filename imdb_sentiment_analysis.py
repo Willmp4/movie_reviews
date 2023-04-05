@@ -3,8 +3,9 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 import string 
+import pandas as pd
+import nltk
 
-df = pd.read_csv('IMDB Dataset.csv')
 def preprocess_text(text):
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
@@ -18,6 +19,12 @@ def preprocess_text(text):
     return preprocess_text
 
 
+def main():
+    # Load the dataset into a DataFrame
+    df = pd.read_csv('IMDB Dataset.csv')
 
+    # Apply the preprocess_text function to the 'review' column
+    df['review'] = df['review'].apply(preprocess_text)
 
-df['review'] = df['review'].apply(preprocess_text)
+if __name__ == '__main__':
+    main()
