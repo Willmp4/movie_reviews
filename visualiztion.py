@@ -41,7 +41,7 @@ def plot_roc_curve(y_true, y_pred_probs):
 
 
 if __name__ == '__main__':
-    X_test, y_test, y_pred, y_pred_probs, df, model, tfidf_vectorizer = main()
+    X_test, y_test, y_pred, y_pred_probs, df, model, tfidf_vectorizer = main(train = True)
 
     plot_confusion_matrix(y_test, y_pred)
     plot_class_distribution(df)

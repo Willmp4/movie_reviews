@@ -1,4 +1,4 @@
-import pandas as pd 
+import pandas as pd
 import nltk 
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 import joblib
-
+import os
 
 
 def preprocess_text(text):
@@ -20,11 +20,12 @@ def preprocess_text(text):
     filtered_tokens = [word for word in tokens if word not in stop_words]
     stemmer = SnowballStemmer("english")
     stemmed_tokens = [stemmer.stem(word) if not word.endswith('ion') else word for word in filtered_tokens]
+    
     preprocess_text = ' '.join(stemmed_tokens)
     return preprocess_text
 
-import os
-import joblib
+
+
 
 def main(train=False):
     # Define the file names for the model and vectorizer
@@ -39,8 +40,10 @@ def main(train=False):
         
         # Load the test data
         df = pd.read_csv('IMDB Dataset.csv')
+        df['review'] = df['review'].apply(preprocess_text)
         X_test = tfidf_vectorizer.transform(df['review'])
         y_test = df['sentiment']
+
         
         # Make predictions on the test data
         y_pred = model.predict(X_test)
@@ -54,7 +57,7 @@ def main(train=False):
         df['review'] = df['review'].apply(preprocess_text)
 
         # Create and save the TfidfVectorizer
-        tfidf_vectorizer = TfidfVectorizer()
+        tfidf_vectorizer = TfidfVectorizer(ngram_range=(1, 2))
         tfidf_features = tfidf_vectorizer.fit_transform(df['review'])
         joblib.dump(tfidf_vectorizer, tfidf_vectorizer_file)
 
@@ -72,5 +75,6 @@ def main(train=False):
 
     return X_test, y_test, y_pred, y_pred_probs, df, model, tfidf_vectorizer
 
+
 if __name__ == '__main__':
-    main()
+    main(train=True)

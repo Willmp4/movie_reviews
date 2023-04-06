@@ -1,2 +1,6 @@
 /__pycache__
 /myenv
+/glove.42B.300d.txt
+/IMDB Dataset.csv
+/*.pkl
+/*.h5
