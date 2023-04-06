@@ -14,6 +14,12 @@ from keras.layers import Bidirectional
 from keras.models import Sequential
 from keras.layers import Embedding, SpatialDropout1D, Bidirectional, LSTM, Dense
 from keras.regularizers import l1
+import numpy as np
+import pandas as pd
+from transformers import BertTokenizer, TFBertForSequenceClassification
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import tensorflow as tf
 
 import tensorflow as tf
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
@@ -80,50 +86,39 @@ df['sentiment'] = df['sentiment'].apply(sentiment_to_binary)
 # Split the data
 X_train, X_test, y_train, y_test = train_test_split(df['review'], df['sentiment'], test_size=0.2, random_state=42)
 
+# Load the BERT tokenizer and model
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = TFBertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=2)
+
 # Tokenize the text
-tokenizer = Tokenizer(num_words=max_words)
-tokenizer.fit_on_texts(X_train)
-word_index = tokenizer.word_index
+train_encodings = tokenizer(X_train.tolist(), truncation=True, padding=True, max_length=250)
+test_encodings = tokenizer(X_test.tolist(), truncation=True, padding=True, max_length=250)
 
-# Convert the text to sequences
-X_train_sequences = tokenizer.texts_to_sequences(X_train)
-X_test_sequences = tokenizer.texts_to_sequences(X_test)
+# Convert the tokenized data into a TensorFlow dataset
+train_dataset = tf.data.Dataset.from_tensor_slices((
+    dict(train_encodings),
+    y_train
+)).shuffle(1000).batch(4)
 
-# Pad the sequences
-X_train_padded = pad_sequences(X_train_sequences, maxlen=max_sequence_length)
-X_test_padded = pad_sequences(X_test_sequences, maxlen=max_sequence_length)
+test_dataset = tf.data.Dataset.from_tensor_slices((
+    dict(test_encodings),
+    y_test
+)).batch(4)
 
+# Fine-tune the model
+optimizer = tf.keras.optimizers.Adam(learning_rate=2e-5)
+loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 
-embeddings_index = load_glove_embeddings('glove.42B.300d.txt')
-embedding_matrix = create_embedding_matrix(embeddings_index, word_index, embedding_dim)
-
-
-
-# model = Sequential()
-# model.add(Embedding(len(word_index) + 1, embedding_dim, weights=[embedding_matrix], input_length=max_sequence_length, trainable=False))
-# model.add(SpatialDropout1D(0.2))
-# model.add(Bidirectional(LSTM(100, dropout=0.0, recurrent_dropout=0.0, kernel_regularizer=l1(0.001))))
-# model.add(Dense(1, activation='sigmoid'))
-
-# # Compile the model
-# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-
-# # Display the model summary
-# model.summary()
-
-model = load_model('sentiment_analysis_model.h5')
-
-# Create a checkpoint callback
-checkpoint = ModelCheckpoint('sentiment_analysis_model.h5', monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
-
-# Train the model
 print('Training the model...')
-model.fit(X_train_padded, y_train, epochs=10, batch_size=64, validation_data=(X_test_padded, y_test), callbacks=[checkpoint])
+model.fit(train_dataset, epochs=3, batch_size=4, validation_data=test_dataset)
 
-# model = load_model('sentiment_analysis_model.h5')
+# Evaluate the model
+y_pred_logits = model.predict(test_dataset, batch_size=4)
+y_pred = np.argmax(y_pred_logits.logits, axis=1)
 
-scores = model.evaluate(X_test_padded, y_test, verbose=0)
+accuracy = accuracy_score(y_test, y_pred)
+print("Accuracy: %.2f%%" % (accuracy * 100))
 
-print("Accuracy: %.2f%%" % (scores[1] * 100))
-# Save the trained model
-model.save('sentiment_analysis_model.h5')
+# Save the fine-tuned model
+model.save_pretrained('sentiment_analysis_bert/')
