@@ -10,4 +10,4 @@ while True:
         break
     else:
         result = nlp(user_input)
-        print(f"Sentiment: {result[0]['label']}, Score: {result[0]['score']:.2f}")
+        print(f"Sentiment: {result[0]['label']}, Score: {result[0]['score']:.2f}")  
