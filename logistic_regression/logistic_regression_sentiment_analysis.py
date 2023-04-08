@@ -1,3 +1,10 @@
+# Description: This script trains a logistic regression model to predict the sentiment of a movie review
+# from the IMDB dataset. The model is trained using the TfidfVectorizer and LogisticRegression classes
+# from scikit-learn. The model is saved to disk using the joblib library.
+# Auth: William Bruckmann
+
+
+
 import pandas as pd
 import nltk 
 from nltk.corpus import stopwords

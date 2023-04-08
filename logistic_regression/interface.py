@@ -4,7 +4,7 @@ import string
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from train_model import preprocess_text
+from logistic_regression_sentiment_analysis import preprocess_text
 
 # Define the file names for the model and vectorizer
 tfidf_vectorizer_file = 'tfidf_vectorizer.pkl'
