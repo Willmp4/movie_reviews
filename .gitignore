@@ -4,3 +4,4 @@
 /IMDB Dataset.csv
 /*.pkl
 /*.h5
+nn_bert_setiment_analysis/sentiment_analysis_bert
