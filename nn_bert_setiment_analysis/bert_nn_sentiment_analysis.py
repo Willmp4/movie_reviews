@@ -8,7 +8,6 @@ from keras.optimizers import Adam
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
-from train_model import preprocess_text
 from keras.callbacks import ModelCheckpoint
 from keras.layers import Bidirectional
 from keras.models import Sequential
@@ -20,12 +19,6 @@ from transformers import BertTokenizer, TFBertForSequenceClassification
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import tensorflow as tf
-
-import tensorflow as tf
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-
-
-# ... (rest of the code remains unchanged)
 
 max_words = 10000  # Maximum number of unique words to consider
 max_sequence_length = 250  # Maximum length of each

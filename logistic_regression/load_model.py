@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import joblib
-from train_model import preprocess_text
+from logistic_regression_sentiment_analysis import preprocess_text
 
 def main():
     # Load the saved model and vectorizer
