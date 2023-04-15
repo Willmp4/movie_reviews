@@ -5,5 +5,8 @@
 /*.pkl
 /*.h5
 nn_bert_setiment_analysis/sentiment_analysis_bert
+nn_bert_setiment_analysis/sentiment_analysis_bert_
 /Models
 Sequential_model/*.h5
+Sequential_model/*.pkl
+/Reviews.csv
